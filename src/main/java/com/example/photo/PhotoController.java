@@ -1,18 +1,29 @@
 package com.example.photo;
 
+import org.apache.tomcat.util.http.fileupload.IOUtils;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.io.IOException;
+import java.io.InputStream;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Random;
 
 
 // All endpoints are to return a ResponseEntity
-@RestController
 public class PhotoController {
 
     ArrayList<User> userList = new ArrayList<>();
+
+    ArrayList<Day> dayList = new ArrayList<>();
+
+    public static String UPLOAD_DIRECTORY = System.getProperty("user.dir") + "/uploads";
 
     @GetMapping("/randomUser")
     public ResponseEntity<User> getRandomUser() {
@@ -25,6 +36,13 @@ public class PhotoController {
         }
     }
 
+    @PostMapping("/day")
+    public ResponseEntity addDay(@RequestBody Day day, @RequestBody MultipartFile file) throws IOException {
+        Path filePath = Paths.get(UPLOAD_DIRECTORY, file.getOriginalFilename());
+        Files.write(filePath, file.getBytes());
+        dayList.add(day);
+        return ResponseEntity.status(HttpStatus.OK).body(null);
+    }
 
     @PostMapping("/user")
     public ResponseEntity addUser(@RequestBody User user) {
