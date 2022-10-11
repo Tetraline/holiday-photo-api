@@ -1,5 +1,6 @@
 package com.example.photo;
 
+import org.apache.coyote.Response;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
@@ -9,6 +10,7 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
+import java.util.HashSet;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -54,8 +56,34 @@ public class ImageController {
     @GetMapping("/image/{id}")
     public ResponseEntity getImage(@PathVariable String id) {
         Image i = imageService.getImage(id);
-        return ResponseEntity.ok()
-                .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"" + i.getId() + ".jpg\"")
-                .body(i.getData());
+        return ResponseEntity.status(HttpStatus.OK).body(i.getData());
+        //return ResponseEntity.ok()
+                // This line is needed if you want to directly link to the file download
+                // The file extension is needed, e.g. jpg:
+                //.header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"" + i.getId() + ".jpg\"")
+         //       .body(i.getData());
+    }
+
+    @GetMapping("/holidays")
+    public ResponseEntity getHolidays() {
+        List<Integer> holidayIds = imageService.getAllImages().map(i -> i.getHolidayId()).collect(Collectors.toList());
+        return ResponseEntity.status(HttpStatus.OK).body(new HashSet(holidayIds));
+    }
+
+    @GetMapping("/holiday/{id}")
+    public ResponseEntity getHoliday(@PathVariable String id) {
+        List<ResponseImage> images = imageService.getAllImages()
+                .filter(i -> i.getHolidayId() == Integer.parseInt(id))
+                .map(i -> {
+                    String downloadUri = ServletUriComponentsBuilder
+                            .fromCurrentContextPath()
+                            .path("/image/")
+                            .path(i.getId())
+                            .toUriString();
+                    return new ResponseImage(downloadUri, i.getHolidayId(), i.getLocationText(), i.getDescription());
+
+                }).collect(Collectors.toList());
+        return ResponseEntity.status(HttpStatus.OK).body(images);
+
     }
 }
