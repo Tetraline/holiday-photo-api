@@ -6,6 +6,7 @@ import org.springframework.util.StringUtils;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
+import java.util.Comparator;
 import java.util.stream.Stream;
 
 @Service
@@ -27,7 +28,7 @@ public class ImageService {
         return imageRepository.findAll().stream();
     }
 
-    public Stream<Image> getImagesOfHoliday(int holidayId) {
-        return imageRepository.findAll().stream().filter(i -> i.getHolidayId() == holidayId);
+    public Stream<Image> getImagesOfHoliday(String holidayId) {
+        return imageRepository.findAll().stream().filter(i -> i.getHolidayId().equals(holidayId)).sorted(Comparator.comparing(Image::getDate));
     }
 }

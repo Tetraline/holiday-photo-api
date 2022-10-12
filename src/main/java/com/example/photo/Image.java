@@ -1,8 +1,10 @@
 package com.example.photo;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import org.hibernate.annotations.GenericGenerator;
 
 import javax.persistence.*;
+import java.time.LocalDate;
 
 @Entity
 @Table(name = "images")
@@ -11,20 +13,47 @@ public class Image {
     @GeneratedValue(generator = "uuid")
     @GenericGenerator(name = "uuid", strategy = "uuid2")
     private String id;
-    private int holidayId;
     @Lob
     private byte[] data;
     private String locationText;
+    @Lob
+    @Column( length = 100000 )
     private String description;
+    private LocalDate date;
+    @JsonIgnore // Stop the holiday being sent with every image
+    @ManyToOne(fetch = FetchType.LAZY, optional = false)
+    @JoinColumn(name = "holiday_id", nullable = false)
+    private Holiday holiday;
 
     public Image() {
     }
 
-    public Image(int holidayId, byte[] data, String locationText, String description) {
-        this.holidayId = holidayId;
+    public Image(byte[] data, String locationText, String description, LocalDate date, Holiday holiday)  {
         this.data = data;
         this.locationText = locationText;
         this.description = description;
+        this.date = date;
+        this.holiday = holiday;
+    }
+
+    public Holiday getHoliday() {
+        return holiday;
+    }
+
+    public String getHolidayId(){
+        return holiday.getId();
+    }
+    public void setHoliday(Holiday holiday) {
+        this.holiday = holiday;
+    }
+
+
+    public LocalDate getDate() {
+        return date;
+    }
+
+    public void setDate(LocalDate date) {
+        this.date = date;
     }
 
     public String getId() {
@@ -33,14 +62,6 @@ public class Image {
 
     public void setId(String id) {
         this.id = id;
-    }
-
-    public int getHolidayId() {
-        return holidayId;
-    }
-
-    public void setHolidayId(int holidayId) {
-        this.holidayId = holidayId;
     }
 
     public byte[] getData() {

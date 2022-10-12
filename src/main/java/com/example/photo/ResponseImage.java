@@ -1,23 +1,27 @@
 package com.example.photo;
 
+import java.time.LocalDate;
+
 public class ResponseImage {
     private String url;
-    private int holidayId;
+    private String holidayId;
     private String locationText;
     private String description;
+    private LocalDate date;
 
-    public ResponseImage(String url, int holidayId, String locationText, String description) {
+    public ResponseImage(String url, String holidayId, String locationText, String description, LocalDate date) {
         this.url = url;
         this.holidayId = holidayId;
         this.locationText = locationText;
         this.description = description;
+        this.date = date;
     }
 
     public String getUrl() {
         return url;
     }
 
-    public int getHolidayId() {
+    public String getHolidayId() {
         return holidayId;
     }
 
@@ -27,5 +31,9 @@ public class ResponseImage {
 
     public String getDescription() {
         return description;
+    }
+
+    public LocalDate getDate() {
+        return date;
     }
 }
